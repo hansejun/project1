@@ -5,7 +5,7 @@ import { lightTheme, darkTheme } from "./theme";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { QueryClient, QueryClientProvider } from "react-query";
-
+import { HelmetProvider } from "react-helmet-async";
 const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -13,9 +13,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={darkTheme || lightTheme}>
-        <App />
-      </ThemeProvider>
+      <HelmetProvider>
+        <ThemeProvider theme={darkTheme || lightTheme}>
+          <App />
+        </ThemeProvider>
+      </HelmetProvider>
     </QueryClientProvider>
   </React.StrictMode>
 );

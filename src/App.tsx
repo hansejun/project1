@@ -1,5 +1,6 @@
 import styled, { createGlobalStyle } from "styled-components";
 import Router from "./routes/Router";
+import { ReactQueryDevtools } from "react-query/devtools";
 const GlobalStyle = createGlobalStyle`
   html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -70,7 +71,9 @@ function App() {
   return (
     <>
       <Router />
+
       <GlobalStyle />
+      <ReactQueryDevtools initialIsOpen={true} />
     </>
   );
 }

@@ -17,16 +17,16 @@ const Test = styled.div`
   height: 100%;
   left: 50%;
   right: 50%;
+  top: 130px;
   transform: translate(-50%, -50%);
-  top: 45%;
   svg {
-    width: 100px;
-    height: 100px;
+    width: 60px;
+    height: 60px;
     animation: ${rotateAni} 2s linear infinite;
-    color: #5f48f7;
+    color: #5c43ff;
   }
 `;
-export function Loading() {
+export function SmallLoading() {
   return (
     <Test>
       <svg
@@ -40,4 +40,4 @@ export function Loading() {
   );
 }
 
-export default Loading;
+export default SmallLoading;

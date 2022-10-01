@@ -1,19 +1,21 @@
 import { useState } from "react";
 import { useQuery } from "react-query";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { getCoin, getPrice } from "../api";
+import { getCoin, getCoins, getPrice } from "../api";
 import Loading from "../components/Loading";
 import Chart from "./Chart";
 import Price from "./Price";
-
+import { ICoins } from "./Coins";
+import { Helmet } from "react-helmet-async";
 const Wrapper = styled.div<{ height?: number }>`
   width: 390px;
-  height: ${(props) => props.height || "600"}px;
+  min-height: 765px;
+  max-height: 765px;
   background-color: ${(props) => props.theme.bgColor};
   border-radius: 20px;
-  padding: 4rem 2rem 3rem 2rem;
+  padding: 3.5rem 2rem 3rem 2rem;
   overflow: hidden;
   position: relative;
   box-shadow: 20px 70px 40px 20px rgba(0, 0, 0, 0.2);
@@ -44,7 +46,7 @@ const ICons = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  a {
+  span {
     &:nth-child(2) {
       margin: 0 1rem;
     }
@@ -122,7 +124,7 @@ const CoinInfoItem = styled.div`
 `;
 const CoinGraph = styled.div`
   width: 100%;
-  height: 40vh;
+  height: 280px;
   background-color: #333366;
   border-radius: 15px;
   margin: 5rem 0 3rem 0;
@@ -191,19 +193,44 @@ interface ICoinPrice {
 function Coin() {
   const { coinId } = useParams<{ coinId: string }>();
   const { state: location } = useLocation();
+  const navigate = useNavigate();
+  const [btn, setBtn] = useState(true);
+  const { data: coins, isLoading: coinsLoading } = useQuery<ICoins[]>(
+    "coins",
+    getCoins
+  );
   const { data: coin, isLoading: coinLoading } = useQuery<ICoin>("coin", () =>
-    getCoin(coinId as any)
+    getCoin(coinId as string)
   );
   const { data: price, isLoading: priceLoading } = useQuery<ICoinPrice>(
     "price",
     () => getPrice(coinId as any)
   );
-  const [btn, setBtn] = useState(true);
+
+  let idx = coins?.findIndex((item) => item.id === coinId) || 0;
+
+  const pages = idx && [
+    coins?.slice(idx - 1, idx)[0].id,
+    coins?.slice(idx + 1, idx + 2)[0].id,
+  ];
+
+  function goNav(num: number) {
+    let path: string | undefined = "";
+    if (num === 0) path = "";
+    else if (num === 1 && pages) path = pages[1];
+    else if (num === -1 && pages) path = pages[0];
+    else if (num === 1 && !pages) path = coins?.slice(idx + 1, idx + 2)[0].id;
+    navigate(`/${path}`);
+    window.location.reload();
+  }
 
   return (
     <Wrapper height={window.innerHeight}>
+      <Helmet>
+        <title>{location || coinId || "Coin"}</title>
+      </Helmet>
       <ICons>
-        <Link to="">
+        <span onClick={() => goNav(-1)}>
           <Icon>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
               <path
@@ -212,8 +239,8 @@ function Coin() {
               />
             </svg>
           </Icon>
-        </Link>
-        <Link to={"/"}>
+        </span>
+        <span onClick={() => goNav(0)}>
           <Icon>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
               <path
@@ -222,8 +249,8 @@ function Coin() {
               />
             </svg>
           </Icon>
-        </Link>
-        <Link to="">
+        </span>
+        <span onClick={() => goNav(1)}>
           <Icon>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
               <path
@@ -232,9 +259,14 @@ function Coin() {
               />
             </svg>
           </Icon>
-        </Link>
+        </span>
       </ICons>
-      <Title>{location || coinId}</Title>
+      {location ? (
+        <Title>{location}</Title>
+      ) : (
+        <Title>{coins && coins[idx]?.symbol}</Title>
+      )}
+
       {coinLoading && priceLoading ? (
         <Loading />
       ) : (
@@ -266,7 +298,11 @@ function Coin() {
               </CoinGraphBtn>
             </CoinGraphBtns>
             <CoinGraphContainer>
-              {btn ? <Price /> : <Chart />}
+              {btn ? (
+                <Price coinId={coinId as string} />
+              ) : (
+                <Chart coinId={coinId as string} />
+              )}
             </CoinGraphContainer>
           </CoinGraph>
           <PriceInfo>

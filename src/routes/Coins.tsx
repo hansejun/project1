@@ -4,16 +4,18 @@ import { Link } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import { getCoins } from "../api";
 import Loading from "../components/Loading";
-
+import { Helmet } from "react-helmet-async";
 export const Wrapper = styled.div<{ height?: number }>`
   width: 390px;
-  height: 100vh;
+  min-height: 765px;
+  max-height: 765px;
   background-color: ${(props) => props.theme.bgColor};
   border-radius: 20px;
-  padding: 4rem 2rem 2rem 2rem;
+  padding: 4rem 2rem 4rem 2rem;
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
+  box-shadow: 20px 70px 40px 20px rgba(0, 0, 0, 0.2);
   /* width */
   ::-webkit-scrollbar {
     width: 10px;
@@ -31,14 +33,16 @@ export const Title = styled.h1`
 
 export const BoxContainer = styled.ul`
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   padding: 1rem;
+  position: relative;
 `;
 
 export const Box = styled.li`
   background-color: ${(props) => props.theme.cardColor};
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
   border-radius: 15px;
   transition: box-shadow 0.4s ease-in;
   //transition: background-color 0.5s ease-in;
@@ -61,7 +65,7 @@ export const Box = styled.li`
   }
   &:hover {
     // background-color: #3c2c9d;
-    box-shadow: inset 0 0px 120px 0px #3c2c9d;
+    box-shadow: inset 0 0px 120px 0px #6154ea;
   }
 `;
 const opactiyAni = keyframes`
@@ -75,13 +79,22 @@ const opactiyAni = keyframes`
 const Icon = styled.div`
   width: 3.2rem;
   height: 3.2rem;
-  background-color: #333366;
+  background: linear-gradient(
+    30deg,
+    rgba(66, 53, 190, 1) 0%,
+    rgba(119, 107, 245, 1) 100%
+  );
   border-radius: 50%;
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  right: 50%;
+  bottom: -54px;
+  transform: translate(-50%, -50%);
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  margin: 0 auto;
   margin-top: 1.2rem;
   &:hover {
     svg {
@@ -98,7 +111,7 @@ const Icon = styled.div`
   }
 `;
 
-interface ICoins {
+export interface ICoins {
   id: string;
   name: string;
   symbol: string;
@@ -115,6 +128,9 @@ function Coins() {
   return (
     <>
       <Wrapper height={window.innerHeight}>
+        <Helmet>
+          <title>Coins</title>
+        </Helmet>
         <Title>COIN</Title>
         {isLoading ? (
           <Loading />
