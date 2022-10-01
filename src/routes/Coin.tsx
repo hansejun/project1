@@ -9,6 +9,7 @@ import Chart from "./Chart";
 import Price from "./Price";
 import { ICoins } from "./Coins";
 import { Helmet } from "react-helmet-async";
+import { ErrorBoundary } from "../Errorquery";
 const Wrapper = styled.div<{ height?: number }>`
   width: 390px;
   min-height: 765px;
@@ -192,19 +193,25 @@ interface ICoinPrice {
 
 function Coin() {
   const { coinId } = useParams<{ coinId: string }>();
+  const { pathname } = window.location;
+
   const { state: location } = useLocation();
   const navigate = useNavigate();
   const [btn, setBtn] = useState(true);
   const { data: coins, isLoading: coinsLoading } = useQuery<ICoins[]>(
     "coins",
-    getCoins
+    getCoins,
+    { retry: 3 }
   );
-  const { data: coin, isLoading: coinLoading } = useQuery<ICoin>("coin", () =>
-    getCoin(coinId as string)
+  const { data: coin, isLoading: coinLoading } = useQuery<ICoin>(
+    "coin",
+    () => getCoin((coinId as string) || pathname),
+    { retry: 3 }
   );
   const { data: price, isLoading: priceLoading } = useQuery<ICoinPrice>(
     "price",
-    () => getPrice(coinId as any)
+    () => getPrice((coinId as any) || pathname),
+    { retry: 3 }
   );
 
   let idx = coins?.findIndex((item) => item.id === coinId) || 0;
@@ -298,11 +305,13 @@ function Coin() {
               </CoinGraphBtn>
             </CoinGraphBtns>
             <CoinGraphContainer>
-              {btn ? (
-                <Price coinId={coinId as string} />
-              ) : (
-                <Chart coinId={coinId as string} />
-              )}
+              <ErrorBoundary>
+                {btn ? (
+                  <Price coinId={coinId as string} />
+                ) : (
+                  <Chart coinId={coinId as string} />
+                )}
+              </ErrorBoundary>
             </CoinGraphContainer>
           </CoinGraph>
           <PriceInfo>

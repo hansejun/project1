@@ -46,7 +46,7 @@ function Chart({ coinId }: ICoinId) {
             {
               name: "Price",
               data:
-                (data && data?.map((item) => Math.floor(+item.close))) ?? [],
+                (data && data?.map((item) => +(+item.close).toFixed(3))) ?? [],
             },
           ]}
           options={{

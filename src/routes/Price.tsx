@@ -31,7 +31,8 @@ function Price({ coinId }: ICoinId) {
     "timePrice",
     () => getTimePrice(coinId),
     {
-      retry: 2,
+      retry: 3,
+      useErrorBoundary: true,
     }
   );
 
@@ -50,7 +51,9 @@ function Price({ coinId }: ICoinId) {
                   data?.map((item) => {
                     return {
                       x: new Date(item.time_close * 1000),
-                      y: [+item.open, +item.high, +item.low, +item.close],
+                      y: [item.open, item.high, item.low, item.close].map(
+                        (item) => (+item).toFixed(3)
+                      ),
                     };
                   })) ||
                 [],
